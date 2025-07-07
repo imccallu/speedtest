@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import json
+import matplotlib.pyplot as plt
 
 st.title("🚀 Quick SEO Audit Tool")
 
@@ -15,6 +16,10 @@ if st.button("Run Full Audit") and url:
     # ---- Fix missing http(s) ----
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
+
+    # --- Storage for scores ---
+    m_score = None
+    d_score = None
 
     st.subheader("📱 Mobile Performance")
     with st.spinner("Running Mobile PageSpeed Insights..."):
@@ -33,7 +38,7 @@ if st.button("Run Full Audit") and url:
             st.write(f"**Largest Contentful Paint:** {m_lcp}")
             st.write(f"**Total Blocking Time:** {m_tbt}")
         else:
-            st.error("❌ Mobile PageSpeed fetch failed. Check your API key and quota.")
+            st.error("❌ Mobile PageSpeed fetch failed.")
 
     st.subheader("💻 Desktop Performance")
     with st.spinner("Running Desktop PageSpeed Insights..."):
@@ -52,8 +57,19 @@ if st.button("Run Full Audit") and url:
             st.write(f"**Largest Contentful Paint:** {d_lcp}")
             st.write(f"**Total Blocking Time:** {d_tbt}")
         else:
-            st.error("❌ Desktop PageSpeed fetch failed. Check your API key and quota.")
+            st.error("❌ Desktop PageSpeed fetch failed.")
 
+    # ---- 📈 Show comparison chart ----
+    if m_score and d_score:
+        st.subheader("📊 Speed Comparison")
+        fig, ax = plt.subplots()
+        ax.bar(['Mobile', 'Desktop'], [m_score, d_score], color=['#1f77b4', '#ff7f0e'])
+        ax.set_ylabel('Performance Score')
+        ax.set_ylim(0, 100)
+        ax.set_title('Mobile vs Desktop PageSpeed Score')
+        st.pyplot(fig)
+
+    # ---- 🔎 Schema Markup Detected ----
     st.subheader("🔎 Schema Markup Detected")
     with st.spinner("Scanning for JSON-LD Schema Markup..."):
         try:
@@ -80,12 +96,34 @@ if st.button("Run Full Audit") and url:
             else:
                 st.warning("⚠️ No JSON-LD Schema types found.")
 
+            # ---- 📍 Suggest recommended schemas ----
+            st.subheader("📍 Suggested Schema Markup to Add")
+            recommended = [
+                "Organization",
+                "WebPage",
+                "QAPage",
+                "Location",
+                "Service",
+                "Author",
+                "BreadcrumbList",
+                "Review",
+                "ImageObject"
+            ]
+
+            missing = [r for r in recommended if r not in unique_schemas]
+
+            if missing:
+                st.warning("👉 **Recommended to add:**")
+                for m in missing:
+                    st.write(f"- {m}")
+            else:
+                st.success("🎉 Great job! Your site has all the recommended schema types.")
+
         except Exception as e:
             st.error(f"❌ Error fetching schema: {e}")
 
     st.info("""
     **Why This Matters:**  
-    🔹 **PageSpeed** impacts Google rankings — faster pages rank better and convert more.  
-    🔹 **Schema Markup** helps Google understand your site, improving how you appear in search (stars, FAQs, local info).  
-    Use these insights to boost visibility and get more qualified leads.
+    🔹 **PageSpeed**: Higher scores = better rankings & conversions.  
+    🔹 **Schema**: More types help Google understand your site and show rich results (stars, FAQs, breadcrumbs, etc.).
     """)
