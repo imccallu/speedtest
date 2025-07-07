@@ -9,15 +9,17 @@ st.title("🚀 Quick SEO Audit Tool")
 # ---- API Key ----
 API_KEY = st.secrets["api_keys"]["pagespeed"]
 
-# ---- URL Input ----
-url = st.text_input("Enter the URL to check:", "")
+# ---- Form for URL input + Return key support ----
+with st.form("audit_form"):
+    url = st.text_input("Enter the URL to check:", "")
+    submit = st.form_submit_button("Run Full Audit")
 
-if st.button("Run Full Audit") and url:
+if submit and url:
     # ---- Fix missing http(s) ----
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
 
-    # --- Storage for scores ---
+    # Storage for scores
     m_score = None
     d_score = None
 
@@ -59,7 +61,7 @@ if st.button("Run Full Audit") and url:
         else:
             st.error("❌ Desktop PageSpeed fetch failed.")
 
-    # ---- 📈 Show comparison chart ----
+    # ---- 📈 Comparison chart ----
     if m_score and d_score:
         st.subheader("📊 Speed Comparison")
         fig, ax = plt.subplots()
@@ -69,7 +71,7 @@ if st.button("Run Full Audit") and url:
         ax.set_title('Mobile vs Desktop PageSpeed Score')
         st.pyplot(fig)
 
-    # ---- 🔎 Schema Markup Detected ----
+    # ---- 🔎 Schema check ----
     st.subheader("🔎 Schema Markup Detected")
     with st.spinner("Scanning for JSON-LD Schema Markup..."):
         try:
@@ -96,7 +98,7 @@ if st.button("Run Full Audit") and url:
             else:
                 st.warning("⚠️ No JSON-LD Schema types found.")
 
-            # ---- 📍 Suggest recommended schemas ----
+            # 📍 Recommended schemas
             st.subheader("📍 Suggested Schema Markup to Add")
             recommended = [
                 "Organization",
@@ -124,6 +126,6 @@ if st.button("Run Full Audit") and url:
 
     st.info("""
     **Why This Matters:**  
-    🔹 **PageSpeed**: Higher scores = better rankings & conversions.  
-    🔹 **Schema**: More types help Google understand your site and show rich results (stars, FAQs, breadcrumbs, etc.).
+    ✅ **PageSpeed**: Better scores boost rankings & conversions.  
+    ✅ **Schema**: More markup improves how you appear in search — think stars, FAQs, breadcrumbs & more!
     """)
