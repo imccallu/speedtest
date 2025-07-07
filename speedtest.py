@@ -17,8 +17,9 @@ if st.button("Run PageSpeed Audit") and url:
     with st.spinner("Running PageSpeed Insights..."):
         api_url = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}&strategy=mobile&key={API_KEY}"
         response = requests.get(api_url)
-            if response.status_code == 200:
-                data = response.json()
+        if response.status_code == 200:
+            data = response.json()
+            # your success code here
 
                 score = data['lighthouseResult']['categories']['performance']['score'] * 100
                 fcp = data['lighthouseResult']['audits']['first-contentful-paint']['displayValue']
