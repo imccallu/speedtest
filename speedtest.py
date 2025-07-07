@@ -4,7 +4,7 @@ import requests
 st.title("🚀 Page Performace Checker")
 
 # ---- API Key ----
-API_KEY = "AIzaSyBd8ky3tLHnu0dFUcTiGDpvH_LqxoSUU4w"
+API_KEY = st.secrets["api_keys"]["pagespeed"]
 
 # ---- URL Input ----
 url = st.text_input("Enter the URL to check:", "")
