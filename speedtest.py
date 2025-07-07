@@ -30,7 +30,7 @@ if submit and url:
             m_lcp = m_data['lighthouseResult']['audits']['largest-contentful-paint']['displayValue']
             m_tbt = m_data['lighthouseResult']['audits']['total-blocking-time']['displayValue']
 
-            st.success(f"✅ Mobile PageSpeed Score: **{m_score} / 100**")
+            st.success(f"✅ Mobile PageSpeed Score: **{m_score:.0f} / 100**")
             st.write(f"**First Contentful Paint:** {m_fcp}")
             st.write(f"**Largest Contentful Paint:** {m_lcp}")
             st.write(f"**Total Blocking Time:** {m_tbt}")
@@ -49,7 +49,7 @@ if submit and url:
             d_lcp = d_data['lighthouseResult']['audits']['largest-contentful-paint']['displayValue']
             d_tbt = d_data['lighthouseResult']['audits']['total-blocking-time']['displayValue']
 
-            st.success(f"✅ Desktop PageSpeed Score: **{d_score} / 100**")
+            st.success(f"✅ Desktop PageSpeed Score: **{d_score:.0f} / 100**")
             st.write(f"**First Contentful Paint:** {d_fcp}")
             st.write(f"**Largest Contentful Paint:** {d_lcp}")
             st.write(f"**Total Blocking Time:** {d_tbt}")
@@ -121,6 +121,6 @@ if submit and url:
 
     st.info("""
     **Why This Matters:**  
-    ✅ **PageSpeed**: Better scores help rankings & conversions.  
-    ✅ **Schema**: More markup means better search appearance — stars, breadcrumbs, FAQs & more.
+    ✅ **PageSpeed**: Higher scores help rankings & boost conversions.  
+    ✅ **Schema**: Better markup means richer search results (stars, breadcrumbs, FAQs) — driving more qualified traffic.
     """)
