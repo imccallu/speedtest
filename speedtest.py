@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import json
-import matplotlib.pyplot as plt
 
 st.title("🚀 Quick SEO Audit Tool")
 
@@ -18,10 +17,6 @@ if submit and url:
     # ---- Fix missing http(s) ----
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
-
-    # Storage for scores
-    m_score = None
-    d_score = None
 
     st.subheader("📱 Mobile Performance")
     with st.spinner("Running Mobile PageSpeed Insights..."):
@@ -61,24 +56,15 @@ if submit and url:
         else:
             st.error("❌ Desktop PageSpeed fetch failed.")
 
-    # ---- 📈 Comparison chart ----
-    if m_score and d_score:
-        st.subheader("📊 Speed Comparison")
-        fig, ax = plt.subplots()
-        ax.bar(['Mobile', 'Desktop'], [m_score, d_score], color=['#1f77b4', '#ff7f0e'])
-        ax.set_ylabel('Performance Score')
-        ax.set_ylim(0, 100)
-        ax.set_title('Mobile vs Desktop PageSpeed Score')
-        st.pyplot(fig)
-
     # ---- 🔎 Schema check ----
     st.subheader("🔎 Schema Markup Detected")
-    with st.spinner("Scanning for JSON-LD Schema Markup..."):
+    with st.spinner("Scanning for JSON-LD and Microdata Schema Markup..."):
         try:
             html = requests.get(url).text
             soup = BeautifulSoup(html, 'html.parser')
             schemas_found = []
 
+            # ---- JSON-LD ----
             for tag in soup.find_all('script', type='application/ld+json'):
                 try:
                     data = json.loads(tag.string)
@@ -90,13 +76,22 @@ if submit and url:
                 except:
                     continue
 
-            unique_schemas = list(set(schemas_found))
-            if unique_schemas:
+            # ---- Microdata ----
+            microdata_types = []
+            for tag in soup.find_all(attrs={"itemscope": True}):
+                itemtype = tag.get("itemtype")
+                if itemtype:
+                    microdata_types.append(itemtype.split("/")[-1])
+
+            # Combine both
+            all_schema_types = list(set(schemas_found + microdata_types))
+
+            if all_schema_types:
                 st.success("✅ Schema types found:")
-                for s in unique_schemas:
+                for s in all_schema_types:
                     st.write(f"- {s}")
             else:
-                st.warning("⚠️ No JSON-LD Schema types found.")
+                st.warning("⚠️ No JSON-LD or Microdata Schema types found.")
 
             # 📍 Recommended schemas
             st.subheader("📍 Suggested Schema Markup to Add")
@@ -112,7 +107,7 @@ if submit and url:
                 "ImageObject"
             ]
 
-            missing = [r for r in recommended if r not in unique_schemas]
+            missing = [r for r in recommended if r not in all_schema_types]
 
             if missing:
                 st.warning("👉 **Recommended to add:**")
@@ -126,6 +121,6 @@ if submit and url:
 
     st.info("""
     **Why This Matters:**  
-    ✅ **PageSpeed**: Better scores boost rankings & conversions.  
-    ✅ **Schema**: More markup improves how you appear in search — think stars, FAQs, breadcrumbs & more!
+    ✅ **PageSpeed**: Better scores help rankings & conversions.  
+    ✅ **Schema**: More markup means better search appearance — stars, breadcrumbs, FAQs & more.
     """)
