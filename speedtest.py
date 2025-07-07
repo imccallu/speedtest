@@ -10,6 +10,10 @@ API_KEY = st.secrets["api_keys"]["pagespeed"]
 url = st.text_input("Enter the URL to check:", "")
 
 if st.button("Run PageSpeed Audit") and url:
+    if not url.startswith("http"):
+        st.error("❌ Please enter a valid URL starting with http or https.")
+    else:
+        # run the API call...
     with st.spinner("Running PageSpeed Insights..."):
         api_url = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}&strategy=mobile&key={API_KEY}"
         response = requests.get(api_url)
